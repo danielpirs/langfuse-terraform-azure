@@ -225,4 +225,5 @@ resource "azurerm_public_ip" "appgw" {
   allocation_method   = "Static"
   sku                 = "Standard"
   zones               = [1, 2, 3]
+  domain_name_label   = lower(var.name)
 }

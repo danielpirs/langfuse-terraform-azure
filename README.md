@@ -2,6 +2,15 @@
 
 # Azure Langfuse Terraform module
 
+## New
+
+Manually add app gateway listener
+Reduced postgress server
+create domain in public ip address
+(later need to remove domain from setting)
+Need to check the import of database
+TF_VAR_subscription_id=
+
 > This module is a pre-release version and its interface may change. Please review the changelog between each release and create a GitHub issue for any problems or feature requests.
 
 This repository contains a Terraform module for deploying [Langfuse](https://langfuse.com/) - the open-source LLM observability platform - on Azure.
