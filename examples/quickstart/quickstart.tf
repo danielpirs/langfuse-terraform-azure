@@ -66,5 +66,5 @@ module "langfuse" {
   use_ddos_protection = false
 
   # Optional: Configure Langfuse Helm chart version
-  langfuse_helm_chart_version = "1.2.15"
+  langfuse_helm_chart_version = "1.2.16"
 }
