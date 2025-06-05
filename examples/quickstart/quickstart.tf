@@ -1,5 +1,5 @@
 provider "azurerm" {
-  subscription_id = "<yourAzureSubscriptionID>"
+  subscription_id = "yourAzureSubscriptionID"
   features {}
 }
 
@@ -22,12 +22,12 @@ provider "helm" {
 module "langfuse" {
   source = "../.."
 
-  domain   = "langfuse.example.com"
-  location = "westeurope" # Optional: defaults to westeurope
+  domain   = "lf.requaire.eu"
+  location = "germanywestcentral" # Optional: defaults to westeurope
 
   # Optional: use a different name for your installation
   # e.g. when using the module multiple times on the same Azure subscription
-  name = "langfuse"
+  name = "lfn"
 
   # Optional: Configure langfuse
   use_encryption_key = false
@@ -49,9 +49,9 @@ module "langfuse" {
   node_pool_max_count = 10
 
   # Optional: Configure the database instances
-  postgres_instance_count = 2
+  postgres_instance_count = 1
   postgres_ha_mode        = "SameZone"
-  postgres_sku_name       = "GP_Standard_D2s_v3"
+  postgres_sku_name       = "B_Standard_B1ms"
   postgres_storage_mb     = 32768
 
   # Optional: Configure the cache
@@ -63,7 +63,7 @@ module "langfuse" {
   app_gateway_capacity = 1
 
   # Optional: Security features
-  use_ddos_protection = true
+  use_ddos_protection = false
 
   # Optional: Configure Langfuse Helm chart version
   langfuse_helm_chart_version = "1.2.15"
