@@ -1,5 +1,5 @@
 provider "azurerm" {
-  subscription_id = "yourAzureSubscriptionID"
+  subscription_id = var.subscription_id
   features {}
 }
 
@@ -22,7 +22,7 @@ provider "helm" {
 module "langfuse" {
   source = "../.."
 
-  domain   = "lf.requaire.eu"
+  domain   = "lfn.requaire.eu"
   location = "germanywestcentral" # Optional: defaults to westeurope
 
   # Optional: use a different name for your installation
