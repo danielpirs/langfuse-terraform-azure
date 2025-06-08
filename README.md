@@ -233,11 +233,19 @@ MIT Licensed. See LICENSE for full details.
 
 ## Adjustments
 
+TF_VAR_subscription_id
+
 ### Cost
 
 - reduce Postgress tier and compute size (and remove high availability)
 
 ### Domain (url)
+
+- create domain in public ip address -> Configuration -> DNS name label
+- host name override? http settings host header?
+- application gateway listeners -> add addional url for both http and https (create new certificate with proper url for https)
+- Kubernetes service -> Workloads -> (both langfuse_web and langfuse-worker) - > YAML -> modify NEXTAUTH_URL url and save
+- remove old domain from listeners
 
 ### Import old data
 
