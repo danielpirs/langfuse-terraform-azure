@@ -230,3 +230,63 @@ The module creates a complete Langfuse stack with the following Azure components
 ## License
 
 MIT Licensed. See LICENSE for full details.
+
+## Adjustments
+
+### Cost
+
+- reduce Postgress tier and compute size (and remove high availability)
+
+### Domain (url)
+
+### Import old data
+
+- export from old setup (langfuse 2)
+  - enable public access and add your ip to firewall in postgress (settings -> networking)
+  - endpoint - database overview
+  - username -  container app - > settings -> Containers -> Environment Variables - > DATABASE_USERNAME
+  - password - Key Vault -> Objects -> Secrets -> DATABASEPASSWORD -> Current Version -> Show Secret Value
+  - export 'pg_dump --host=endpoint --username=? --dbname=langfuse --format=custom --file=dump_file.dump'
+- import to new setup (langfuse 3)
+  - enable public access and add your ip to firewall in postgress (settings -> networking)
+  - endpoint - database overview
+  - username - database -> Security -> Authentication -> Administrator login
+  - password - Kubernetes service -> Configuration -> Secrets -> Langfuse -> postgres-password
+  - import - 'pg_restore --host=endpoint --username=postgres --dbname=langfuse --format=custom --verbose dump_file.dump
+
+### Certificate
+
+### SSO
+
+- Create Azure App Registration
+  - Tenand ID (your company)
+  - Application ID - from overview
+  - Authentication
+    - Type Web
+    - Redirect URI
+    - ID Tokens only
+    - Accounts in this organizational directory only
+  - API Permissions
+    - User.REad, email, openid, profile
+  - Certificates & Secrets
+    - create new client secret and copy the value
+  - Owners (same as below)
+- Enterprise Application is also needed
+  - Owners
+  - Users and Groups (who has access)
+
+- Langfuse Kubernetes service Workloads (langfuse web and worker) -> YAML
+    AUTH_AZURE_AD_CLIENT_ID=your-application-client-id
+    AUTH_AZURE_AD_CLIENT_SECRET=your-client-secret
+    AUTH_AZURE_AD_TENANT_ID=your-tenant-id
+
+    Optional: Allow account linking (useful if you have existing email/password users)
+    AUTH_AZURE_AD_ALLOW_ACCOUNT_LINKING=true
+
+    Optional: Disable email/password authentication (force SSO only)
+    AUTH_DISABLE_USERNAME_PASSWORD=true
+
+    Make sure NEXTAUTH_URL is set correctly
+    NEXTAUTH_URL=<https://your-langfuse-domain.com>
+
+    Somehow update this config
