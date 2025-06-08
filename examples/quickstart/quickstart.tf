@@ -49,9 +49,9 @@ module "langfuse" {
   node_pool_max_count = 10
 
   # Optional: Configure the database instances
-  postgres_instance_count = 1
+  postgres_instance_count = 2
   postgres_ha_mode        = "SameZone"
-  postgres_sku_name       = "B_Standard_B1ms"
+  postgres_sku_name       = "GP_Standard_D2s_v3"
   postgres_storage_mb     = 32768
 
   # Optional: Configure the cache

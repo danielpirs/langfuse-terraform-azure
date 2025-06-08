@@ -264,6 +264,9 @@ TF_VAR_subscription_id
 
 ### Certificate
 
+- company domain?
+- own domain?
+
 ### SSO
 
 - Create Azure App Registration
