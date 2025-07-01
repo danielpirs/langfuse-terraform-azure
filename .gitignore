@@ -2,3 +2,4 @@ examples/quickstart/.terraform
 examples/quickstart/terraform.tfstate.backup
 examples/quickstart/terraform.tfstate
 examples/quickstart/.terraform.tfstate.lock.info
+examples/quickstart/dump_file.dump

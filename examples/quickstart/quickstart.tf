@@ -11,7 +11,7 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = module.langfuse.cluster_host
     client_certificate     = base64decode(module.langfuse.cluster_client_certificate)
     client_key             = base64decode(module.langfuse.cluster_client_key)
@@ -49,9 +49,9 @@ module "langfuse" {
   node_pool_max_count = 10
 
   # Optional: Configure the database instances
-  postgres_instance_count = 2
+  postgres_instance_count = 1
   postgres_ha_mode        = "SameZone"
-  postgres_sku_name       = "GP_Standard_D2s_v3"
+  postgres_sku_name       = "B_Standard_B1ms"
   postgres_storage_mb     = 32768
 
   # Optional: Configure the cache
@@ -66,5 +66,5 @@ module "langfuse" {
   use_ddos_protection = false
 
   # Optional: Configure Langfuse Helm chart version
-  langfuse_helm_chart_version = "1.2.16"
+  langfuse_helm_chart_version = "1.2.18"
 }

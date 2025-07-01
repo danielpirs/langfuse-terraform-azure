@@ -96,6 +96,11 @@ resource "azurerm_private_dns_a_record" "key_vault" {
 resource "azurerm_key_vault_certificate" "this" {
   name         = var.name
   key_vault_id = azurerm_key_vault.this.id
+  depends_on   = [
+    azurerm_key_vault_access_policy.this, 
+    azurerm_key_vault_access_policy.appgw,
+    azurerm_dns_zone.this
+    ]
 
   certificate_policy {
     issuer_parameters {
@@ -140,7 +145,4 @@ resource "azurerm_key_vault_certificate" "this" {
     }
   }
 
-  depends_on = [
-    azurerm_dns_zone.this
-  ]
 }

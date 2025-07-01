@@ -233,7 +233,7 @@ MIT Licensed. See LICENSE for full details.
 
 ## Adjustments
 
-TF_VAR_subscription_id
+export TF_VAR_subscription_id="????"
 
 ### Cost
 
