@@ -22,15 +22,15 @@ provider "helm" {
 module "langfuse" {
   source = "../.."
 
-  domain   = "lfn.requaire.eu"
+  domain   = "my-domain"
   location = "germanywestcentral" # Optional: defaults to westeurope
 
   # Optional: use a different name for your installation
   # e.g. when using the module multiple times on the same Azure subscription
-  name = "lfn"
+  name = "langfuse3"
 
   # Optional: Configure langfuse
-  use_encryption_key = false
+  use_encryption_key = true
 
   # Optional: Configure the Virtual Network
   virtual_network_address_prefix    = "10.224.0.0/12"
@@ -66,5 +66,5 @@ module "langfuse" {
   use_ddos_protection = false
 
   # Optional: Configure Langfuse Helm chart version
-  langfuse_helm_chart_version = "1.2.18"
+  langfuse_helm_chart_version = "1.3.1"
 }

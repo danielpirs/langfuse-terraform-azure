@@ -13,7 +13,7 @@ This module aims to provide a production-ready, secure, and scalable deployment 
 
 ```hcl
 module "langfuse" {
-  source = "github.com/langfuse/langfuse-terraform-azure?ref=0.1.2"
+  source = "github.com/langfuse/langfuse-terraform-azure?ref=0.2.0"
 
   domain              = "langfuse.example.com"
   location            = "westeurope"  # Optional: defaults to westeurope
@@ -53,26 +53,26 @@ module "langfuse" {
   app_gateway_capacity = 1
 
   # Optional: Security features
-  use_encryption_key = false
+  use_encryption_key = true
   use_ddos_protection = true
 
   # Optional: Configure Langfuse Helm chart version
-  langfuse_helm_chart_version = "1.2.15"
+  langfuse_helm_chart_version = "1.3.1"
 }
 
 provider "kubernetes" {
-  host                   = module.langfuse.aks_cluster_host
-  client_certificate     = base64decode(module.langfuse.aks_cluster_client_certificate)
-  client_key             = base64decode(module.langfuse.aks_cluster_client_key)
-  cluster_ca_certificate = base64decode(module.langfuse.aks_cluster_ca_certificate)
+  host                   = module.langfuse.cluster_host
+  client_certificate     = base64decode(module.langfuse.cluster_client_certificate)
+  client_key             = base64decode(module.langfuse.cluster_client_key)
+  cluster_ca_certificate = base64decode(module.langfuse.cluster_ca_certificate)
 }
 
 provider "helm" {
-  kubernetes {
-    host                   = module.langfuse.aks_cluster_host
-    client_certificate     = base64decode(module.langfuse.aks_cluster_client_certificate)
-    client_key             = base64decode(module.langfuse.aks_cluster_client_key)
-    cluster_ca_certificate = base64decode(module.langfuse.aks_cluster_ca_certificate)
+  kubernetes = {
+    host                   = module.langfuse.cluster_host
+    client_certificate     = base64decode(module.langfuse.cluster_client_certificate)
+    client_key             = base64decode(module.langfuse.cluster_client_key)
+    cluster_ca_certificate = base64decode(module.langfuse.cluster_ca_certificate)
   }
 }
 ```
@@ -186,7 +186,7 @@ The module creates a complete Langfuse stack with the following Azure components
 | kubernetes_version                | Kubernetes version for AKS cluster            | string | "1.32"               |    no    |
 | aks_service_cidr                  | Network range used by Kubernetes service      | string | "192.168.0.0/20"     |    no    |
 | aks_dns_service_ip                | IP address for cluster service discovery      | string | "192.168.0.10"       |    no    |
-| use_encryption_key                | Whether to use encryption key for credentials | bool   | false                |    no    |
+| use_encryption_key                | Whether to use encryption key for credentials | bool   | true                 |    no    |
 | node_pool_vm_size                 | VM size for AKS node pool                     | string | "Standard_D2s_v6"    |    no    |
 | node_pool_min_count               | Minimum number of nodes in AKS node pool      | number | 2                    |    no    |
 | node_pool_max_count               | Maximum number of nodes in AKS node pool      | number | 10                   |    no    |
@@ -199,7 +199,7 @@ The module creates a complete Langfuse stack with the following Azure components
 | redis_capacity                    | Capacity of Redis                             | number | 1                    |    no    |
 | app_gateway_capacity              | Capacity for Application Gateway              | number | 1                    |    no    |
 | use_ddos_protection               | Whether to use DDoS protection                | bool   | true                 |    no    |
-| langfuse_helm_chart_version       | Version of the Langfuse Helm chart to deploy | string | "1.2.15"              |    no    |
+| langfuse_helm_chart_version       | Version of the Langfuse Helm chart to deploy  | string | "1.3.1"              |    no    |
 
 ## Outputs
 
@@ -239,33 +239,14 @@ export TF_VAR_subscription_id="????"
 
 - reduce Postgress tier and compute size (and remove high availability)
 
+  postgres_instance_count = 1
+  postgres_ha_mode        = "SameZone"
+  postgres_sku_name       = "B_Standard_B1ms"
+
 ### Domain (url)
 
 - create domain in public ip address -> Configuration -> DNS name label
-- host name override? http settings host header?
-- application gateway listeners -> add addional url for both http and https (create new certificate with proper url for https)
-- Kubernetes service -> Workloads -> (both langfuse_web and langfuse-worker) - > YAML -> modify NEXTAUTH_URL url and save
-- remove old domain from listeners
-
-### Import old data
-
-- export from old setup (langfuse 2)
-  - enable public access and add your ip to firewall in postgress (settings -> networking)
-  - endpoint - database overview
-  - username -  container app - > settings -> Containers -> Environment Variables - > DATABASE_USERNAME
-  - password - Key Vault -> Objects -> Secrets -> DATABASEPASSWORD -> Current Version -> Show Secret Value
-  - export 'pg_dump --host=endpoint --username=? --dbname=langfuse --format=custom --file=dump_file.dump'
-- import to new setup (langfuse 3)
-  - enable public access and add your ip to firewall in postgress (settings -> networking)
-  - endpoint - database overview
-  - username - database -> Security -> Authentication -> Administrator login
-  - password - Kubernetes service -> Configuration -> Secrets -> Langfuse -> postgres-password
-  - import - 'pg_restore --host=endpoint --username=postgres --dbname=langfuse --format=custom --verbose dump_file.dump
-
-### Certificate
-
-- company domain?
-- own domain?
+- application gateway listeners -> add addional url for both http and https
 
 ### SSO
 
@@ -300,4 +281,11 @@ export TF_VAR_subscription_id="????"
     Make sure NEXTAUTH_URL is set correctly
     NEXTAUTH_URL=<https://your-langfuse-domain.com>
 
-    Somehow update this config
+### Upgrade langfuse
+
+verify the new k8 version
+modify in quickstart.tf  langfuse_helm_chart_version = "1.3.1"
+terraform init - if not already done
+terraform plan - does not do anything but lists the planned
+terraform apply -target=helm_release.langfuse - do upgrade
+Take care the upgrade will probably overwrite all Kubernetes env variables (that need to be setup again) - there should be a way how to do it automatically
