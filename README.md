@@ -281,6 +281,19 @@ export TF_VAR_subscription_id="????"
     Make sure NEXTAUTH_URL is set correctly
     NEXTAUTH_URL=<https://your-langfuse-domain.com>
 
+### SSL
+
+- Create new files with 'openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr'
+- send csr file to trustcenter url (request pem)
+- create pfx with
+  openssl pkcs12 -export \
+    -out certificate.pfx \
+    -inkey server.key \
+    -in cert.pem
+
+- upload pfx to keyvault
+- update application gateway https listener with new certificate (probably need to add proper access policy to key valut for gateway identity - get/list certificate)
+
 ### Upgrade langfuse
 
 verify the new k8 version
