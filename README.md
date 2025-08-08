@@ -296,9 +296,23 @@ export TF_VAR_subscription_id="????"
 
 ### Upgrade langfuse
 
-verify the new k8 version
-modify in quickstart.tf  langfuse_helm_chart_version = "1.3.1"
-terraform init - if not already done
-terraform plan - does not do anything but lists the planned
-terraform apply -target=helm_release.langfuse - do upgrade
-Take care the upgrade will probably overwrite all Kubernetes env variables (that need to be setup again) - there should be a way how to do it automatically
+- verify the new k8 version
+- Check what certificate name Helm thinks it should use
+  - 'helm get values langfuse -n langfuse | grep appgw-ssl-certificate' - it should be 'bosch-lang3-cert' (Azure Portal -> Applicationu Gateway -> TLS settings/Certificates)
+  - If they don't match, update Helm values:
+  - 'helm upgrade langfuse langfuse/langfuse --version <current-version> -n langfuse --reuse-values --set langfuse.ingress annotations."appgw\.ingress\.kubernetes\.io/appgw-ssl-certificate"=<your-actual-cert-name>'
+
+- Check what services actually exist
+  - kubectl get svc -n langfuse
+- Check what service the ingress points to
+  - kubectl describe ingress langfuse -n langfuse | grep "Backends"
+- fix
+  - kubectl patch ingress langfuse -n langfuse --type='json' -p='[{"op": "replace", "path": "/spec/rules/0/http/paths/0/backend/service/name", "value": "langfuse-web"}]'
+- Check AGIC is healthy
+  - 'kubectl get pods -n kube-system | grep ingress'
+- Backup current working state
+  - 'helm get values langfuse -n langfuse > langfuse-values-backup.yaml'
+- UPDATE
+  - 'helm repo update'
+  - 'helm upgrade langfuse langfuse/langfuse --version 1.3.3 -n langfuse'
+  - 'helm list -n langfuse'
